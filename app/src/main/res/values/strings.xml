@@ -1,0 +1,25 @@
+<resources>
+    <string name="app_name">BLE Demo</string>
+    <!-- on permission of file manager requesting -->
+    <string name="on_permission_read_file_manager">You have disabled a required permission.</string>
+
+    <string name="bluetooth_not_support">Device does not support bluetooth</string>
+    <string name="application_cannot_be_used_on_this_device">The application cannot be used on this device.</string>
+    <string name="scanning_bluetooth_low_energy">Scanning bluetooth low energy&#8230;</string>
+    <string name="progress_msg_connecting_bluetooth_low_energy">Connecting bluetooth low energy&#8230;</string>
+    <string name="bluetooth_low_energy_connection_failed">Bluetooth Low Energy connection failed.</string>
+    <string name="ble_device_disconnected">Bluetooth Low Energy device was disconnected.</string>
+    <string name="could_not_search_any_device">Could not search any device.</string>
+
+    <string name="device_name">Device Name : </string>
+    <string name="device_address">Device Address : </string>
+    <string name="device_type">Device Type : </string>
+    <string name="device_bond_state">Device Bond State : </string>
+    <string name="bluetooth_class">Bluetooth Class : </string>
+    <string name="uuids">UUID List : </string>
+
+    <string name="ok">OK</string>
+    <string name="cancel">Cancel</string>
+    <string name="settings">Settings</string>
+    <string name="permission_message">Must be enabled location permission to search for other devices via Bluetooth.</string>
+</resources>
