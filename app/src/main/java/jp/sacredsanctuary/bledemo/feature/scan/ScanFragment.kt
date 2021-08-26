@@ -113,11 +113,6 @@ class ScanFragment : Fragment(R.layout.fragment_scan) {
 
     companion object {
         private val ClassName = ScanFragment::class.java.simpleName
-
-        // Stops scanning after 5 seconds.
-        private const val SCAN_PERIOD: Long = 5000
-
-        private const val PERMISSION_REQUEST_CODE = 0
         private const val PACKAGE_SCHEME = "package"
     }
 }
