@@ -23,6 +23,7 @@ import android.provider.Settings
 import android.view.View
 import android.view.animation.AnimationUtils
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.PermissionChecker
 import androidx.fragment.app.Fragment
@@ -50,7 +51,7 @@ class ScanFragment : Fragment(R.layout.fragment_scan) {
             if (isGranted) {
                 sharedViewModel.scanning(true)
             } else {
-                permissionRequestDialog()
+                permissionRequestDialog(R.string.location_permission_message)
             }
         }
 
@@ -87,7 +88,7 @@ class ScanFragment : Fragment(R.layout.fragment_scan) {
                 sharedViewModel.scanning(true)
             }
             shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION) -> {
-                permissionRequestDialog()
+                permissionRequestDialog(R.string.location_permission_message)
             }
             else -> {
                 requestPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
@@ -95,9 +96,9 @@ class ScanFragment : Fragment(R.layout.fragment_scan) {
         }
     }
 
-    private fun permissionRequestDialog() {
+    private fun permissionRequestDialog(@StringRes resId: Int) {
         AlertDialog.Builder(requireContext())
-            .setMessage(R.string.permission_message)
+            .setMessage(resId)
             .setPositiveButton(R.string.settings) { _, _ ->
                 val intent = Intent().apply {
                     action = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
