@@ -48,6 +48,11 @@ class MainActivity : AppCompatActivity(), ServiceConnection {
     private var bluetoothLowEnergyControllerCallback: IBluetoothLowEnergyControllerCallback? = null
     private var progressDialog: ProgressDialog? = null
     private var mainHandler: Handler? = null
+    private val hasAccessFileLocationPermission
+        get() = PermissionChecker.checkSelfPermission(
+            this,
+            Manifest.permission.ACCESS_FINE_LOCATION
+        ) == PermissionChecker.PERMISSION_GRANTED
 
     override fun onCreate(savedInstanceState: Bundle?) {
         LogUtil.V(ClassName, "onCreate() [INF] ")
@@ -65,13 +70,8 @@ class MainActivity : AppCompatActivity(), ServiceConnection {
         viewModel.scanning.observe(this, { scanning ->
             LogUtil.V(ClassName, "observe() [INF] scanning:${scanning}")
             if (scanning) {
-                when (PermissionChecker.PERMISSION_GRANTED) {
-                    PermissionChecker.checkSelfPermission(
-                        this,
-                        Manifest.permission.ACCESS_FINE_LOCATION
-                    ) -> {
-                        bleServiceConnection?.scanBluetoothLowEnergyDevice(SCAN_PERIOD)
-                    }
+                if (hasAccessFileLocationPermission) {
+                    bleServiceConnection?.scanBluetoothLowEnergyDevice(SCAN_PERIOD)
                 }
             }
         })

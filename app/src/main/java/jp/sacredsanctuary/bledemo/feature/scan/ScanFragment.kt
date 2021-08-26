@@ -38,6 +38,11 @@ import jp.sacredsanctuary.bledemo.view.MainActivityViewModel
 class ScanFragment : Fragment(R.layout.fragment_scan) {
     private val viewModel: ScanViewModel by viewModels()
     private val sharedViewModel: MainActivityViewModel by activityViewModels()
+    private val hasAccessFileLocationPermission
+        get() = PermissionChecker.checkSelfPermission(
+            requireContext(),
+            Manifest.permission.ACCESS_FINE_LOCATION
+        ) == PermissionChecker.PERMISSION_GRANTED
 
     private val requestPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
@@ -78,10 +83,7 @@ class ScanFragment : Fragment(R.layout.fragment_scan) {
     override fun onResume() {
         super.onResume()
         when {
-            PermissionChecker.checkSelfPermission(
-                requireContext(),
-                Manifest.permission.ACCESS_FINE_LOCATION
-            ) == PermissionChecker.PERMISSION_GRANTED -> {
+            hasAccessFileLocationPermission -> {
                 sharedViewModel.scanning(true)
             }
             shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION) -> {
