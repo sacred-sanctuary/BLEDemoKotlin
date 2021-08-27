@@ -18,11 +18,13 @@ package jp.sacredsanctuary.bledemo.feature.scan
 import android.Manifest
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.view.View
 import android.view.animation.AnimationUtils
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.PermissionChecker
@@ -44,8 +46,18 @@ class ScanFragment : Fragment(R.layout.fragment_scan) {
             requireContext(),
             Manifest.permission.ACCESS_FINE_LOCATION
         ) == PermissionChecker.PERMISSION_GRANTED
+    private val hasBluetoothConnectPermission @RequiresApi(Build.VERSION_CODES.S)
+        get() = PermissionChecker.checkSelfPermission(
+            requireContext(),
+            Manifest.permission.BLUETOOTH_CONNECT
+        ) == PermissionChecker.PERMISSION_GRANTED
+    private val hasBluetoothScanPermission @RequiresApi(Build.VERSION_CODES.S)
+    get() = PermissionChecker.checkSelfPermission(
+            requireContext(),
+            Manifest.permission.BLUETOOTH_SCAN
+        ) == PermissionChecker.PERMISSION_GRANTED
 
-    private val requestPermissionLauncher = registerForActivityResult(
+    private val requestAccessFileLocationPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
         ) { isGranted: Boolean ->
             if (isGranted) {
@@ -54,6 +66,16 @@ class ScanFragment : Fragment(R.layout.fragment_scan) {
                 permissionRequestDialog(R.string.location_permission_message)
             }
         }
+
+    private val requestBluetoothConnectPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted: Boolean ->
+        if (isGranted) {
+            sharedViewModel.scanning(true)
+        } else {
+            permissionRequestDialog(R.string.nearby_devices_permission_message)
+        }
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -83,15 +105,29 @@ class ScanFragment : Fragment(R.layout.fragment_scan) {
 
     override fun onResume() {
         super.onResume()
-        when {
-            hasAccessFileLocationPermission -> {
-                sharedViewModel.scanning(true)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            when {
+                hasBluetoothConnectPermission && hasBluetoothScanPermission -> {
+                    sharedViewModel.scanning(true)
+                }
+                shouldShowRequestPermissionRationale(Manifest.permission.BLUETOOTH_CONNECT) -> {
+                    permissionRequestDialog(R.string.nearby_devices_permission_message)
+                }
+                else -> {
+                    requestBluetoothConnectPermissionLauncher.launch(Manifest.permission.BLUETOOTH_CONNECT)
+                }
             }
-            shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION) -> {
-                permissionRequestDialog(R.string.location_permission_message)
-            }
-            else -> {
-                requestPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+        } else {
+            when {
+                hasAccessFileLocationPermission -> {
+                    sharedViewModel.scanning(true)
+                }
+                shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION) -> {
+                    permissionRequestDialog(R.string.location_permission_message)
+                }
+                else -> {
+                    requestAccessFileLocationPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+                }
             }
         }
     }
