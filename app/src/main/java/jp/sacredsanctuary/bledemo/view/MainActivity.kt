@@ -22,12 +22,14 @@ import android.bluetooth.le.ScanResult
 import android.content.ComponentName
 import android.content.Intent
 import android.content.ServiceConnection
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
 import android.widget.Toast
 import androidx.activity.viewModels
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.PermissionChecker
@@ -48,6 +50,21 @@ class MainActivity : AppCompatActivity(), ServiceConnection {
     private var bluetoothLowEnergyControllerCallback: IBluetoothLowEnergyControllerCallback? = null
     private var progressDialog: ProgressDialog? = null
     private var mainHandler: Handler? = null
+    private val hasAccessFileLocationPermission
+        get() = PermissionChecker.checkSelfPermission(
+            this,
+            Manifest.permission.ACCESS_FINE_LOCATION
+        ) == PermissionChecker.PERMISSION_GRANTED
+    private val hasBluetoothConnectPermission @RequiresApi(Build.VERSION_CODES.S)
+        get() = PermissionChecker.checkSelfPermission(
+                this,
+                Manifest.permission.BLUETOOTH_CONNECT
+            ) == PermissionChecker.PERMISSION_GRANTED
+    private val hasBluetoothScanPermission @RequiresApi(Build.VERSION_CODES.S)
+        get() = PermissionChecker.checkSelfPermission(
+                this,
+                Manifest.permission.BLUETOOTH_SCAN
+            ) == PermissionChecker.PERMISSION_GRANTED
 
     override fun onCreate(savedInstanceState: Bundle?) {
         LogUtil.V(ClassName, "onCreate() [INF] ")
@@ -65,11 +82,12 @@ class MainActivity : AppCompatActivity(), ServiceConnection {
         viewModel.scanning.observe(this, { scanning ->
             LogUtil.V(ClassName, "observe() [INF] scanning:${scanning}")
             if (scanning) {
-                when (PermissionChecker.PERMISSION_GRANTED) {
-                    PermissionChecker.checkSelfPermission(
-                        this,
-                        Manifest.permission.ACCESS_FINE_LOCATION
-                    ) -> {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    if (hasBluetoothConnectPermission && hasBluetoothScanPermission) {
+                        bleServiceConnection?.scanBluetoothLowEnergyDevice(SCAN_PERIOD)
+                    }
+                } else {
+                    if (hasAccessFileLocationPermission) {
                         bleServiceConnection?.scanBluetoothLowEnergyDevice(SCAN_PERIOD)
                     }
                 }
